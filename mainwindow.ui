@@ -538,8 +538,8 @@
     <property name="title">
      <string>&amp;File </string>
     </property>
-    <addaction name="actionOpen"/>
-    <addaction name="actionSave_As"/>
+    <addaction name="action_open"/>
+    <addaction name="action_save_as"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -553,7 +553,7 @@
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionOpen">
+  <action name="action_open">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
      <normaloff>:/images/open.ico</normaloff>:/images/open.ico</iconset>
@@ -568,19 +568,7 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionSave">
-   <property name="icon">
-    <iconset resource="resource/resource.qrc">
-     <normaloff>:/images/save.ico</normaloff>:/images/save.ico</iconset>
-   </property>
-   <property name="text">
-    <string>Save</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionSave_As">
+  <action name="action_save_as">
    <property name="icon">
     <iconset resource="resource/resource.qrc">
      <normaloff>:/images/save.ico</normaloff>:/images/save.ico</iconset>
@@ -613,14 +601,6 @@
    </property>
    <property name="shortcutContext">
     <enum>Qt::WindowShortcut</enum>
-   </property>
-  </action>
-  <action name="actionClose">
-   <property name="text">
-    <string>Close</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>

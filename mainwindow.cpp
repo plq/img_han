@@ -46,8 +46,8 @@ MainWindow::MainWindow(QWidget *parent):
 
     ui->graphicsView->setSlider(ui->sld_zoom);
 
-    connect(ui->btn_open, SIGNAL(clicked(bool)), ui->actionOpen, SIGNAL(triggered(bool)));
-    connect(ui->btn_save, SIGNAL(clicked(bool)), ui->actionSave, SIGNAL(triggered(bool)));
+    connect(ui->btn_open, SIGNAL(clicked(bool)), ui->action_open, SIGNAL(triggered(bool)));
+    connect(ui->btn_save, SIGNAL(clicked(bool)), ui->action_save_as, SIGNAL(triggered(bool)));
 
     this->setWindowTitle("Arskom EasyCompress");
 
@@ -79,7 +79,7 @@ void MainWindow::showEvent(QShowEvent *e) {
     }
 }
 
-void MainWindow::on_actionOpen_triggered(){
+void MainWindow::on_action_open_triggered(){
     const auto &desktop_abs = QStandardPaths::standardLocations(
                 QStandardPaths::DesktopLocation);
 
@@ -122,18 +122,20 @@ void MainWindow::on_actionOpen_triggered(){
     reprocess_image(ui->sld_scale->value(), ui->sld_quality->value());
 }
 
-void MainWindow::on_actionSave_As_triggered() {
-    const auto &desktop_abs = QStandardPaths::standardLocations(
-                QStandardPaths::DesktopLocation);
-
-    QString imagePath = QFileDialog::getOpenFileName(
-            this, tr("Open File"), desktop_abs.first(),
-            tr("JPEG (*.jpg *.jpeg);;PNG (*.png);;BMP (*.bmp);;WEBP (*.webp)"));
-
-    if (imagePath.isEmpty()) {
+void MainWindow::on_action_save_as_triggered() {
+    if (m_image_path.isEmpty()) {
         qDebug() << "Empty string returned";
         return;
     }
+
+    const auto &desktop_abs = QStandardPaths::standardLocations(
+                QStandardPaths::DesktopLocation);
+
+    QString imagePath = QFileDialog::getSaveFileName(
+            this, tr("Save File"), desktop_abs.first(),
+            tr("JPEG (*.jpg *.jpeg);;PNG (*.png);;BMP (*.bmp);;WEBP (*.webp)"));
+
+
 
     m_orig_image = m_pixmap.toImage();
     m_orig_image.save(imagePath);
