@@ -56,7 +56,7 @@ private:
     QPixmap m_pixmap;
 
     qint16 m_current_scale;
-    qint64 m_current_size;
+    qint64 m_new_size;
 
     int m_new_w;
     int m_new_h;

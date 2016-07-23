@@ -27,6 +27,11 @@
 #include <QGraphicsScene>
 #include <QStandardPaths>
 
+static QString LBL_NEW_SIZE_TEXT = QStringLiteral(
+            "<html><head/><body><p><span style=\" font-weight:600;\">%1</span> KB, "
+            "<span style=\"font-weight:600; color:%2;\">%3%4</span>"
+            " %5</p></body></html>");
+
 
 MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent),
@@ -45,6 +50,14 @@ MainWindow::MainWindow(QWidget *parent):
     connect(ui->btn_save, SIGNAL(clicked(bool)), ui->actionSave, SIGNAL(triggered(bool)));
 
     this->setWindowTitle("Arskom EasyCompress");
+
+    ui->lbl_new_size->clear();
+    ui->lbl_new_dimensions->clear();
+
+    ui->lbl_orig_size->clear();
+    ui->lbl_orig_dimensions->clear();
+
+    m_scene = new QGraphicsScene(this);
 }
 
 MainWindow::~MainWindow() {
@@ -95,7 +108,7 @@ void MainWindow::on_actionOpen_triggered(){
     m_new_h = m_orig_image.height();
 
     m_current_scale = 100;
-    m_current_size = m_orig_size;
+    m_new_size = m_orig_size;
 
     m_pixmap = QPixmap::fromImage(m_orig_image);
     show_pixmap();
@@ -103,12 +116,8 @@ void MainWindow::on_actionOpen_triggered(){
     ui->graphicsView->setScene(m_scene);
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
-    ui->lbl_dimensions->setText(
-                    QString("%1x%2").arg(m_orig_image.width())
-                                    .arg(m_orig_image.height()));
-
     ui->statusBar->showMessage(tr("%1 was opened successfully (%2KB).")
-                                            .arg(file_info.baseName()).arg(m_orig_size / 1024.0, 0, 'f', 1));
+                                 .arg(file_info.baseName()).arg(m_orig_size / 1024.0, 0, 'f', 1));
 
     reprocess_image(ui->sld_scale->value(), ui->sld_quality->value());
 }
@@ -135,46 +144,64 @@ void MainWindow::on_actionExit_triggered(){
 }
 
 void MainWindow::show_pixmap() {
-    if (! m_scene) {
-        m_scene = new QGraphicsScene(this);
-    }
-    else {
-        m_scene->clear();
-    }
+    std::lock_guard<std::mutex> guard(m_mutex);
 
-    m_pixmap = m_pixmap.scaled(m_orig_image.width(), m_orig_image.height());
+    m_scene->clear();
+
+    auto orig_w = m_orig_image.width();
+    auto orig_h = m_orig_image.height();
 
     m_scene->addPixmap(m_pixmap);
     m_scene->setSceneRect(m_pixmap.rect());
 
-    ui->lbl_size_kb->setText(QStringLiteral("%1").arg(m_orig_size / 1024.0, 0, 'f', 1));
-    ui->lbl_size_mp->setText(QStringLiteral("%1").arg(m_new_w * m_new_h / 1e6, 0, 'f', 1));
-    ui->lbl_dimensions->setText(
-                    QString("%1x%2").arg(m_new_w)
-                                    .arg(m_new_h));
+    /* set original image information */
+    ui->lbl_orig_size->setTextFormat(Qt::RichText);
+    ui->lbl_orig_size->setText(
+            QStringLiteral("<b>%1</b> KB")
+                .arg(m_orig_size / 1024.0, 0, 'f', 1));
 
+
+    ui->lbl_orig_dimensions->setTextFormat(Qt::RichText);
+    ui->lbl_orig_dimensions->setText(
+            QStringLiteral("%1x%2 (<b>%3</b> megapixels)")
+                .arg(m_orig_image.width())
+                .arg(m_orig_image.height())
+                .arg(orig_w * orig_h / 1e6, 0, 'f', 1));
+
+    /* set slider information */
     ui->lbl_scale->setText(QStringLiteral("%1").arg(m_current_scale));
+    ui->lbl_quality->setText(QString::number(ui->sld_quality->value()));
 
-    auto sld_value_quality = ui->sld_quality->value();
-    int comp_p = 100.0 * m_current_size / m_orig_size;
+    /* set slider information */
+    ui->lbl_new_dimensions->setTextFormat(Qt::RichText);
+    ui->lbl_new_dimensions->setText(
+            QStringLiteral("%1x%2 (<b>%3</b> megapixels)")
+                .arg(m_new_w)
+                .arg(m_new_h)
+                .arg(m_new_w * m_new_h / 1e6, 0, 'f', 1));
 
-    ui->lbl_quality->setText(QString::number(sld_value_quality));
-    ui->lbl_compression->setText(QString::number(comp_p));
 
-    if (comp_p == 100) {
-        ui->lbl_compression->setStyleSheet("QLabel { }");
+    /* set compressed image information */
+    int comp_ratio = 100.0 * m_new_size / m_orig_size;
+    int weight_loss = 100 - comp_ratio;
+
+    ui->lbl_new_size->setTextFormat(Qt::RichText);
+    QString lbl_new_size_text = LBL_NEW_SIZE_TEXT
+            .arg(m_new_size / 1024.0, 0, 'f', 1);
+
+    if (comp_ratio == 100) {
+        ui->lbl_new_size->setText(lbl_new_size_text.arg("black")
+                                  .arg("No").arg("").arg(tr("compression")));
     }
-    else if(comp_p > 100) {
-        ui->lbl_compression->setStyleSheet("QLabel { color: red; }");
+    else if(comp_ratio > 100) {
+        ui->lbl_new_size->setText(lbl_new_size_text.arg("red")
+                                  .arg(weight_loss).arg("%").arg(tr("increase")));
     }
-    else if(comp_p<=100) {
-        ui->lbl_compression->setStyleSheet("QLabel { color: green; }");
+    else if(comp_ratio < 100) {
+        ui->lbl_new_size->setText(lbl_new_size_text.arg("green")
+                                  .arg(weight_loss).arg("%").arg(tr("compression")));
     }
 
-    double l_size_kb = m_current_size / 1024.00;
-    ui->lbl_size_kb->setText(QString::number(l_size_kb));
-
-    std::lock_guard<std::mutex> guard(m_mutex);
     m_processing = false;
 
     m_loading_animation = new QMovie(":/images/loading.gif");
@@ -220,16 +247,19 @@ void MainWindow::reprocess_image_impl(int scale, int quality) {
 }
 
 bool MainWindow::rescale_image(int scale) {
-    int w = m_orig_image.width();
-    int h = m_orig_image.height();
+    double w = m_orig_image.width();
+    double h = m_orig_image.height();
 
-    m_new_w = (w * scale)/100;
-    m_new_h = (h * scale)/100;
+    m_new_w = static_cast<int>(std::round((w * scale) / 100));
+    m_new_h = static_cast<int>(std::round((h * scale) / 100));
 
     m_current_scale = scale;
 
     m_pixmap = QPixmap::fromImage(
                 m_orig_image.scaled(m_new_w, m_new_h, Qt::KeepAspectRatio, Qt::FastTransformation));
+
+    // for showing to the user
+    m_pixmap = m_pixmap.scaled(m_orig_image.width(), m_orig_image.height());
 
     return true;
 }
@@ -240,7 +270,7 @@ bool MainWindow::requality_image(int quality) {
     buffer.open(QIODevice::WriteOnly);
     m_pixmap.save(&buffer, "WEBP", quality);
 
-    m_current_size = buffer.size();
+    m_new_size = buffer.size();
 
     qDebug() << "image size(b) = " << buffer.size();
 
