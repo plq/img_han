@@ -319,14 +319,14 @@ void MainWindow::on_sld_scale_valueChanged(int scale) {
     reprocess_image(scale, ui->sld_quality->value());
 }
 
-void MainWindow::on_btn_zoomin_clicked(){
+void MainWindow::on_btn_zoomin_clicked() {
     ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
     int val = ui->sld_zoom->value();
     val = val + 3;
     ui->sld_zoom->setValue(val);
 }
 
-void MainWindow::on_btn_zoomout_clicked(){
+void MainWindow::on_btn_zoomout_clicked() {
     ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
     int val = ui->sld_zoom->value();
     val = val - 3;
