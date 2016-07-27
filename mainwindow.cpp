@@ -61,7 +61,8 @@ static QString LBL_NEW_SIZE_TEXT = QStringLiteral(
 
 MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent),
-    m_scene(nullptr),
+    m_current_scale(0),
+    m_current_size(0),
     m_orig_size(0),
     m_processing(false),
     ui(new Ui::MainWindow)
@@ -74,6 +75,8 @@ MainWindow::MainWindow(QWidget *parent):
 
     connect(ui->btn_open, SIGNAL(clicked(bool)), ui->action_open, SIGNAL(triggered(bool)));
     connect(ui->btn_save, SIGNAL(clicked(bool)), ui->action_save_as, SIGNAL(triggered(bool)));
+
+    m_scene = new QGraphicsScene(this);
 
     this->setWindowTitle("Arskom EasyCompress");
 
