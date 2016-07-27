@@ -189,9 +189,7 @@ void MainWindow::on_action_save_as_triggered() {
 
     QString imagePath = QFileDialog::getSaveFileName(
             this, tr("Save File"), desktop_abs.first(),
-            tr("JPEG (*.jpg *.jpeg);;PNG (*.png);;BMP (*.bmp);;WEBP (*.webp)"));
-
-
+            tr("WEBP (*.webp)"));
 
     m_orig_image = m_pixmap.toImage();
     m_orig_image.save(imagePath);
