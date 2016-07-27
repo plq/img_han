@@ -78,6 +78,13 @@ MainWindow::MainWindow(QWidget *parent):
 
     m_scene = new QGraphicsScene(this);
 
+    ui->sld_quality->setDisabled(true);
+    ui->sld_scale->setDisabled(true);
+    ui->sld_zoom->setDisabled(true);
+    ui->btn_save->setDisabled(true);
+    ui->btn_rotate_left->setDisabled(true);
+    ui->btn_rotate_right->setDisabled(true);
+
     this->setWindowTitle("Arskom EasyCompress");
 
     ui->lbl_new_size->clear();
@@ -159,6 +166,13 @@ void MainWindow::on_action_open_triggered(){
 
     ui->statusBar->showMessage(tr("%1 was opened successfully (%2KB).")
                                  .arg(file_info.baseName()).arg(m_orig_size / 1024.0, 0, 'f', 1));
+
+    ui->sld_quality->setDisabled(false);
+    ui->sld_scale->setDisabled(false);
+    ui->sld_zoom->setDisabled(false);
+    ui->btn_save->setDisabled(false);
+    ui->btn_rotate_left->setDisabled(false);
+    ui->btn_rotate_right->setDisabled(false);
 
     reprocess_image(ui->sld_scale->value(), ui->sld_quality->value());
 }
@@ -255,11 +269,6 @@ void MainWindow::show_pixmap() {
 }
 
 void MainWindow::reprocess_image(int scale, int quality) {
-    if (m_image_path.isEmpty()) {
-        ui->sld_scale->setValue(100);
-        ui->sld_quality->setValue(50);
-        return;
-    }
 
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_processing) {
@@ -359,12 +368,8 @@ void MainWindow::on_btn_rotate_left_clicked(){
 }
 
 void MainWindow::on_sld_zoom_valueChanged(int value){
-    if (m_image_path.isEmpty()) {
-        ui->sld_zoom->setValue(100);
-        return;
-    }
-
     m_sld_zoom_value = value;
+
     m_ZoomFactor = pow(10,((value-100) / 100.0));
     qDebug() << "zoom factor = " << m_ZoomFactor << "// zoom slider value = " << value;
 
