@@ -179,6 +179,10 @@ void MainWindow::on_action_open_triggered(){
     ui->btn_rotate_left->setDisabled(false);
     ui->btn_rotate_right->setDisabled(false);
 
+    reprocess_image();
+}
+
+void MainWindow::reprocess_image() {
     reprocess_image(ui->sld_scale->value(), ui->sld_quality->value());
 }
 
@@ -204,6 +208,12 @@ void MainWindow::on_actionExit_triggered(){
 }
 
 void MainWindow::show_pixmap_fast() {
+    auto orig_w = m_orig_image.width();
+    auto orig_h = m_orig_image.height();
+
+    // for showing to the user
+    m_pixmap = m_pixmap.scaled(orig_w, orig_h, Qt::KeepAspectRatio, Qt::FastTransformation);
+
     m_scene->clear();
     m_scene->addPixmap(m_pixmap);
     m_scene->setSceneRect(m_pixmap.rect());
@@ -212,11 +222,13 @@ void MainWindow::show_pixmap_fast() {
 void MainWindow::show_pixmap() {
     std::lock_guard<std::mutex> guard(m_mutex);
 
-    m_scene->clear();
-
     auto orig_w = m_orig_image.width();
     auto orig_h = m_orig_image.height();
 
+    // for showing to the user
+    m_pixmap = m_pixmap.scaled(orig_w, orig_h, Qt::KeepAspectRatio, Qt::FastTransformation);
+
+    m_scene->clear();
     m_scene->addPixmap(m_pixmap);
     m_scene->setSceneRect(m_pixmap.rect());
 
@@ -337,10 +349,6 @@ bool MainWindow::rescale_image(int scale) {
     m_pixmap = QPixmap::fromImage(m_orig_image.scaled(m_new_w, m_new_h,
                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
-    // for showing to the user
-    m_pixmap = m_pixmap.scaled(m_orig_image.width(), m_orig_image.height(),
-                                                    Qt::KeepAspectRatio, Qt::FastTransformation);
-
     return true;
 }
 
@@ -369,8 +377,26 @@ void MainWindow::on_sld_quality_valueChanged(int value) {
     reprocess_image(ui->sld_scale->value(), value);
 }
 
+void MainWindow::on_sld_quality_sliderPressed() {
+    m_fast = true;
+}
+
+void MainWindow::on_sld_quality_sliderReleased() {
+    m_fast = false;
+    reprocess_image();
+}
+
 void MainWindow::on_sld_scale_valueChanged(int scale) {
     reprocess_image(scale, ui->sld_quality->value());
+}
+
+void MainWindow::on_sld_scale_sliderPressed() {
+    m_fast = true;
+}
+
+void MainWindow::on_sld_scale_sliderReleased() {
+    m_fast = false;
+    reprocess_image();
 }
 
 void MainWindow::on_btn_zoomin_clicked() {

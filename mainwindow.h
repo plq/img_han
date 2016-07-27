@@ -49,7 +49,12 @@ protected:
 
 private slots:
     void on_sld_quality_valueChanged(int value);
+    void on_sld_quality_sliderPressed();
+    void on_sld_quality_sliderReleased();
+
     void on_sld_scale_valueChanged(int value);
+    void on_sld_scale_sliderPressed();
+    void on_sld_scale_sliderReleased();
 
     void on_btn_zoomin_clicked();
     void on_btn_zoomout_clicked();
@@ -70,6 +75,7 @@ private slots:
     void on_actionExit_triggered();
 
 private:
+    void reprocess_image();
     void reprocess_image(int scale, int quality);
     bool rescale_image(int);
     bool requality_image(int);
@@ -83,7 +89,6 @@ private:
     qint16 m_current_scale;
     qint64 m_new_size;
 
-    qint64 m_current_size;
     bool m_fast;
 
     int m_new_w;
