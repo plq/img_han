@@ -63,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent),
     m_current_scale(0),
     m_current_size(0),
+    m_fast(false),
     m_orig_size(0),
     m_processing(false),
     ui(new Ui::MainWindow)
@@ -200,6 +201,12 @@ void MainWindow::on_actionExit_triggered(){
     close();
 }
 
+void MainWindow::show_pixmap_fast() {
+    m_scene->clear();
+    m_scene->addPixmap(m_pixmap);
+    m_scene->setSceneRect(m_pixmap.rect());
+}
+
 void MainWindow::show_pixmap() {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -268,8 +275,26 @@ void MainWindow::show_pixmap() {
 
 }
 
-void MainWindow::reprocess_image(int scale, int quality) {
+void MainWindow::reprocess_image_fast(int scale, int) {
+    m_new_w = (m_orig_image.width() * scale) / 100;
+    m_new_h = (m_orig_image.height() * scale)/100;
 
+    m_pixmap = QPixmap::fromImage(
+                m_orig_image.scaled(m_new_w, m_new_h, Qt::KeepAspectRatio, Qt::FastTransformation));
+
+    show_pixmap_fast();
+}
+
+void MainWindow::reprocess_image(int scale, int quality) {
+    if (m_fast) {
+        reprocess_image_fast(scale, quality);
+    }
+    else {
+        reprocess_image_smooth(scale, quality);
+    }
+}
+
+void MainWindow::reprocess_image_smooth(int scale, int quality) {
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_processing) {
         return;
@@ -307,11 +332,12 @@ bool MainWindow::rescale_image(int scale) {
 
     m_current_scale = scale;
 
-    m_pixmap = QPixmap::fromImage(
-                m_orig_image.scaled(m_new_w, m_new_h, Qt::KeepAspectRatio, Qt::FastTransformation));
+    m_pixmap = QPixmap::fromImage(m_orig_image.scaled(m_new_w, m_new_h,
+                                                    Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
     // for showing to the user
-    m_pixmap = m_pixmap.scaled(m_orig_image.width(), m_orig_image.height());
+    m_pixmap = m_pixmap.scaled(m_orig_image.width(), m_orig_image.height(),
+                                                    Qt::KeepAspectRatio, Qt::FastTransformation);
 
     return true;
 }

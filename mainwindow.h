@@ -58,11 +58,12 @@ private slots:
     void on_btn_rotate_right_clicked();
     void on_btn_rotate_left_clicked();
 
-    // runs in gui thread
-    void show_pixmap();
+    void show_pixmap();  // runs in gui thread
+    void reprocess_image_smooth(int scale, int);  // runs in gui thread
+    void reprocess_image_impl(int scale, int quality);  // runs in concurrent thread
 
-    // runs in concurrent thread
-    void reprocess_image_impl(int scale, int quality);
+    void reprocess_image_fast(int scale, int);  // runs in gui thread
+    void show_pixmap_fast();  // runs in gui thread
 
     void on_action_open_triggered();
     void on_action_save_as_triggered();
@@ -81,6 +82,9 @@ private:
 
     qint16 m_current_scale;
     qint64 m_new_size;
+
+    qint64 m_current_size;
+    bool m_fast;
 
     int m_new_w;
     int m_new_h;
