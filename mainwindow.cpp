@@ -48,6 +48,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QImageReader>
+#include <QImageWriter>
 #include <QGraphicsView>
 #include <QDesktopWidget>
 #include <QGraphicsScene>
@@ -115,13 +116,16 @@ void MainWindow::showEvent(QShowEvent *e) {
         ui->splitter->setSizes(QList<int>() << toolbox_minw << width() - toolbox_minw);
     }
 
-    auto formats = QImageReader::supportedImageFormats();
-    if (! formats.contains("webp")) {
-        auto formats_str = QLatin1String(formats.join(", "));
+    auto readable_formats = QImageReader::supportedImageFormats();
+    auto writeable_formats = QImageWriter::supportedImageFormats();
+    if (! writeable_formats.contains("webp")) {
+        auto readable_formats_str = QLatin1String(readable_formats.join(", "));
+        auto writeable_formats_str = QLatin1String(writeable_formats.join(", "));
 
         QMessageBox::critical(this, tr("WebP Not Supported"),
-                              tr("Please install WebP Support for Qt before running this program.\n\n"
-                                 "Supported formats are: (%1)").arg(formats_str));
+                tr("Please install WebP Support for Qt before running this program.\n\n"
+                   "Readable Formats: (%1)\n"
+                   "Writeable Formats: (%2)\n").arg(readable_formats_str, writeable_formats_str));
 
         // must call quit() after exec() in main
         QTimer::singleShot(0, qApp, SLOT(quit()));
