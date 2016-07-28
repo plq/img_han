@@ -95,10 +95,13 @@ MainWindow::MainWindow(QWidget *parent):
     ui->lbl_orig_dimensions->clear();
 
     m_scene = new QGraphicsScene(this);
+    m_loading_animation = new QMovie(":/images/loading.gif");
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+    delete m_scene;
+    delete m_loading_animation;
 }
 
 void MainWindow::showEvent(QShowEvent *e) {
@@ -280,12 +283,7 @@ void MainWindow::show_pixmap() {
     }
 
     m_processing = false;
-
-    m_loading_animation = new QMovie(":/images/loading.gif");
-    m_loading_animation->stop();
-    ui->lbl_busy->setAttribute(Qt::WA_NoSystemBackground);
-    ui->lbl_busy->setMovie(m_loading_animation);
-
+    ui->lbl_busy->clear();
 }
 
 void MainWindow::reprocess_image_fast(int scale, int) {
@@ -313,10 +311,9 @@ void MainWindow::reprocess_image_smooth(int scale, int quality) {
         return;
     }
 
-    m_loading_animation = new QMovie(":/images/loading.gif");
     m_loading_animation->start();
-    ui->lbl_busy->setAttribute(Qt::WA_NoSystemBackground);
     ui->lbl_busy->setMovie(m_loading_animation);
+    ui->lbl_busy->show();
 
     QtConcurrent::run(this, &MainWindow::reprocess_image_impl, scale, quality);
 }
