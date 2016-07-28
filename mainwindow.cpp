@@ -297,6 +297,13 @@ void MainWindow::reprocess_image_fast(int scale, int) {
 }
 
 void MainWindow::reprocess_image(int scale, int quality) {
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        if (m_processing) {
+            return;
+        }
+    }
+
     if (m_fast) {
         reprocess_image_fast(scale, quality);
     }
@@ -306,11 +313,6 @@ void MainWindow::reprocess_image(int scale, int quality) {
 }
 
 void MainWindow::reprocess_image_smooth(int scale, int quality) {
-    std::lock_guard<std::mutex> guard(m_mutex);
-    if (m_processing) {
-        return;
-    }
-
     m_loading_animation->start();
     ui->lbl_busy->setMovie(m_loading_animation);
     ui->lbl_busy->show();
@@ -319,9 +321,6 @@ void MainWindow::reprocess_image_smooth(int scale, int quality) {
 }
 
 void MainWindow::reprocess_image_impl(int scale, int quality) {
-
-    std::lock_guard<std::mutex> guard(m_mutex);
-
     if (! rescale_image(scale)) {
         return;
     }
