@@ -63,7 +63,6 @@ static QString LBL_NEW_SIZE_TEXT = QStringLiteral(
 MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent),
     m_current_scale(0),
-    m_current_size(0),
     m_fast(false),
     m_orig_size(0),
     m_processing(false),
