@@ -189,11 +189,6 @@ void MainWindow::reprocess_image() {
 }
 
 void MainWindow::on_action_save_as_triggered() {
-    if (m_image_path.isEmpty()) {
-        qDebug() << "Empty string returned";
-        return;
-    }
-
     const auto &desktop_abs = QStandardPaths::standardLocations(
                 QStandardPaths::DesktopLocation);
 
@@ -201,8 +196,18 @@ void MainWindow::on_action_save_as_triggered() {
             this, tr("Save File"), desktop_abs.first(),
             tr("WEBP (*.webp)"));
 
-    m_orig_image = m_pixmap.toImage();
-    m_orig_image.save(imagePath);
+    if (imagePath.isEmpty()) {
+        return;
+    }
+
+    QFile ostr(imagePath);
+    if (ostr.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        ostr.write(m_out_data);
+    }
+    else {
+        QMessageBox::critical(this, tr("File could not be saved"),
+                              tr("%1 could not be opened for writing").arg(imagePath));
+    }
 }
 
 void MainWindow::on_actionExit_triggered(){
@@ -348,17 +353,16 @@ bool MainWindow::rescale_image(int scale) {
 }
 
 bool MainWindow::requality_image(int quality) {
-    QByteArray ba;
-    QBuffer buffer(&ba);
+    QBuffer buffer(&m_out_data);
     buffer.open(QIODevice::WriteOnly);
     m_pixmap.save(&buffer, "WEBP", quality);
 
     m_new_size = buffer.size();
-
+    qDebug() << "aaa" << quality;
     qDebug() << "image size(b) = " << buffer.size();
 
     QImage image;
-    image.loadFromData(ba);
+    image.loadFromData(m_out_data);
     m_pixmap = QPixmap::fromImage(image);
     if (m_pixmap.isNull()) {
         QMessageBox::critical(this, tr("Critical Error"), tr("Image recompression error!"));

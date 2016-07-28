@@ -82,6 +82,7 @@ private:
 
     void change_size();
 
+    QByteArray m_out_data;
     QString m_image_path;
     std::mutex m_mutex;
     QPixmap m_pixmap;
