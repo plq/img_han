@@ -308,7 +308,7 @@ void MainWindow::reprocess_image(int scale, int quality) {
             return;
         }
     }
-
+    m_out_data.clear();
     if (m_fast) {
         reprocess_image_fast(scale, quality);
     }
