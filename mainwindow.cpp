@@ -296,6 +296,7 @@ void MainWindow::show_pixmap() {
     /* set compressed image information */
     int comp_ratio = 1000 * m_new_size / m_orig_size;
     int weight_loss = 1000 - comp_ratio;
+    int weight_gain = -weight_loss;
 
     ui->lbl_new_size->setTextFormat(Qt::RichText);
     QString lbl_new_size_text = LBL_NEW_SIZE_TEXT
@@ -307,7 +308,7 @@ void MainWindow::show_pixmap() {
     }
     else if(comp_ratio > 1000) {
         ui->lbl_new_size->setText(lbl_new_size_text.arg("red")
-                            .arg(weight_loss / 10.0, 0, 'f', 1).arg("%").arg(tr("increase")));
+                            .arg(weight_gain / 10.0, 0, 'f', 1).arg("%").arg(tr("increase")));
     }
     else if(comp_ratio < 1000) {
         ui->lbl_new_size->setText(lbl_new_size_text.arg("green")
