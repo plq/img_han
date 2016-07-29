@@ -189,11 +189,30 @@ void MainWindow::reprocess_image() {
 }
 
 void MainWindow::on_action_save_as_triggered() {
-    const auto &desktop_abs = QStandardPaths::standardLocations(
-                QStandardPaths::DesktopLocation);
+    QString default_path;
+    {
+        const auto &desktop_abs = QStandardPaths::standardLocations(
+                    QStandardPaths::DesktopLocation);
+
+        if (desktop_abs.count() == 0) {
+            default_path = QDir().absolutePath();
+        }
+        else {
+            default_path = desktop_abs.first();
+        }
+    }
+
+    QString target_path = m_image_path;
+    QString ext = m_image_path.split(".").last().toLower();
+
+    if (QImageReader::supportedImageFormats().contains(ext.toUtf8())) {
+        target_path = QStringLiteral("%1.webp").arg(
+                    target_path.mid(0, target_path.length() - ext.length() -1)); // for .
+    }
 
     QString imagePath = QFileDialog::getSaveFileName(
-            this, tr("Save File"), desktop_abs.first(),
+            this, tr("Save File"),
+            QDir(default_path).absoluteFilePath(target_path),
             tr("WEBP (*.webp)"));
 
     if (imagePath.isEmpty()) {
