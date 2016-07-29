@@ -58,13 +58,13 @@
 #include <QStandardPaths>
 
 
-static QString LBL_NEW_SIZE_TEXT = QStringLiteral(
+static QString LBL_NEW_SIZE_TEXT = QLatin1String(
     "<html>"
         "<head/>"
         "<body>"
             "<p>"
                 "<span style=\"font-weight:600;\">%1</span> KB, "
-                "<span style=\"font-weight:600; color:%2;\">%3%4</span>%5"
+                "<span style=\"font-weight:600; color:%2;\">%3%4</span> %5"
             "</p>"
         "</body>"
     "</html>");
@@ -238,7 +238,7 @@ void MainWindow::on_action_save_as_triggered() {
     }
 }
 
-void MainWindow::on_actionExit_triggered(){
+void MainWindow::on_action_exit_triggered(){
     close();
 }
 
@@ -345,9 +345,10 @@ void MainWindow::reprocess_image(int scale, int quality) {
 }
 
 void MainWindow::reprocess_image_smooth(int scale, int quality) {
-    m_loading_animation->start();
+    ui->lbl_new_size->setText(tr("Compressing..."));
     ui->lbl_busy->setMovie(m_loading_animation);
     ui->lbl_busy->show();
+    m_loading_animation->start();
 
     QtConcurrent::run(this, &MainWindow::reprocess_image_impl, scale, quality);
 }
@@ -452,11 +453,11 @@ void MainWindow::on_btn_rotate_left_clicked(){
 void MainWindow::on_sld_zoom_valueChanged(int value){
     m_sld_zoom_value = value;
 
-    m_ZoomFactor = pow(10, ((value - 100) / 100.0));
-    qDebug() << "zoom factor = " << m_ZoomFactor << "// zoom slider value = " << value;
+    m_zoom_factor = pow(10, ((value - 100) / 100.0));
+    qDebug() << "zoom factor = " << m_zoom_factor << "// zoom slider value = " << value;
 
     QMatrix matrix;
-    matrix.scale(m_ZoomFactor, m_ZoomFactor);
+    matrix.scale(m_zoom_factor, m_zoom_factor);
 
     ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     ui->graphicsView->setMatrix(matrix);

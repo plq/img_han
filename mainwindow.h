@@ -72,7 +72,7 @@ private slots:
 
     void on_action_open_triggered();
     void on_action_save_as_triggered();
-    void on_actionExit_triggered();
+    void on_action_exit_triggered();
 
 private:
     void reprocess_image();
@@ -95,7 +95,7 @@ private:
     int m_new_w;
     int m_new_h;
     int m_sld_zoom_value;
-    double m_ZoomFactor;
+    double m_zoom_factor;
 
     QGraphicsScene *m_scene;
     QMovie *m_loading_animation;
