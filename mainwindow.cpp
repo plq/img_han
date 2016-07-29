@@ -215,9 +215,9 @@ void MainWindow::on_action_save_as_triggered() {
     QString ext = m_image_path.split(".").last().toLower();
 
     if (QImageReader::supportedImageFormats().contains(ext.toUtf8())) {
-        target_path = QStringLiteral("%1.webp").arg(
-                    target_path.mid(0, target_path.length() - ext.length() -1)); // for .
+        target_path = target_path.mid(0, target_path.length() - ext.length() - 1); // -1 is for "."
     }
+    target_path = QStringLiteral("%1.webp").arg(target_path);
 
     QString image_path = QFileDialog::getSaveFileName(
             this, tr("Save File"),
