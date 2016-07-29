@@ -321,7 +321,7 @@ void MainWindow::show_pixmap() {
 
 void MainWindow::reprocess_image_fast(int scale, int) {
     m_new_w = (m_orig_image.width() * scale) / 100;
-    m_new_h = (m_orig_image.height() * scale)/100;
+    m_new_h = (m_orig_image.height() * scale) / 100;
 
     m_pixmap = QPixmap::fromImage(
                 m_orig_image.scaled(m_new_w, m_new_h, Qt::KeepAspectRatio, Qt::FastTransformation));
