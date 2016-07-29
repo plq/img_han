@@ -1,3 +1,5 @@
+/******************************************* 100 cols. ********************************************/
+
 /*
  * This file is part of Arskom EasyCompress Image Compression Tool
  * source code package.
@@ -21,6 +23,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
+
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -140,7 +143,7 @@ void MainWindow::showEvent(QShowEvent *e) {
     }
 }
 
-void MainWindow::on_action_open_triggered(){
+void MainWindow::on_action_open_triggered() {
     const auto &desktop_abs = QStandardPaths::standardLocations(
                 QStandardPaths::DesktopLocation);
 
@@ -212,9 +215,9 @@ void MainWindow::on_action_save_as_triggered() {
     QString ext = m_image_path.split(".").last().toLower();
 
     if (QImageReader::supportedImageFormats().contains(ext.toUtf8())) {
-        target_path = QStringLiteral("%1.webp").arg(
-                    target_path.mid(0, target_path.length() - ext.length() -1)); // for .
+        target_path = target_path.mid(0, target_path.length() - ext.length() - 1); // -1 is for "."
     }
+    target_path = QStringLiteral("%1.webp").arg(target_path);
 
     QString image_path = QFileDialog::getSaveFileName(
             this, tr("Save File"),
