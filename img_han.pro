@@ -36,7 +36,7 @@ lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 #     cf. http://doc.qt.io/qt-5/qabstractscrollarea.html#sizeAdjustPolicy-prop
 lessThan(QT_MINOR_VERSION, 2): error("requires Qt 5.2")
 
-TARGET = deneme2
+TARGET = img_han
 TEMPLATE = app
 
 SOURCES += main.cpp\
