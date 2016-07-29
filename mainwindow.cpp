@@ -1,3 +1,5 @@
+/******************************************* 100 cols. ********************************************/
+
 /*
  * This file is part of Arskom EasyCompress Image Compression Tool
  * source code package.
@@ -21,6 +23,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
+
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -54,20 +57,26 @@
 #include <QGraphicsScene>
 #include <QStandardPaths>
 
+
 static QString LBL_NEW_SIZE_TEXT = QStringLiteral(
-            "<html><head/><body><p><span style=\" font-weight:600;\">%1</span> KB, "
-            "<span style=\"font-weight:600; color:%2;\">%3%4</span>"
-            " %5</p></body></html>");
+    "<html>"
+        "<head/>"
+        "<body>"
+            "<p>"
+                "<span style=\"font-weight:600;\">%1</span> KB, "
+                "<span style=\"font-weight:600; color:%2;\">%3%4</span>%5"
+            "</p>"
+        "</body>"
+    "</html>");
 
 
-MainWindow::MainWindow(QWidget *parent):
-    QMainWindow(parent),
-    m_current_scale(0),
-    m_fast(false),
-    m_orig_size(0),
-    m_processing(false),
-    ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget *parent)
+        : QMainWindow(parent)
+        , m_current_scale(0)
+        , m_fast(false)
+        , m_orig_size(0)
+        , m_processing(false)
+        , ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
     ui->lyt_transform->setAlignment(ui->sld_zoom, Qt::AlignHCenter);
@@ -134,7 +143,7 @@ void MainWindow::showEvent(QShowEvent *e) {
     }
 }
 
-void MainWindow::on_action_open_triggered(){
+void MainWindow::on_action_open_triggered() {
     const auto &desktop_abs = QStandardPaths::standardLocations(
                 QStandardPaths::DesktopLocation);
 
@@ -210,22 +219,22 @@ void MainWindow::on_action_save_as_triggered() {
                     target_path.mid(0, target_path.length() - ext.length() -1)); // for .
     }
 
-    QString imagePath = QFileDialog::getSaveFileName(
+    QString image_path = QFileDialog::getSaveFileName(
             this, tr("Save File"),
             QDir(default_path).absoluteFilePath(target_path),
             tr("WEBP (*.webp)"));
 
-    if (imagePath.isEmpty()) {
+    if (image_path.isEmpty()) {
         return;
     }
 
-    QFile ostr(imagePath);
+    QFile ostr(image_path);
     if (ostr.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         ostr.write(m_out_data);
     }
     else {
         QMessageBox::critical(this, tr("File could not be saved"),
-                              tr("%1 could not be opened for writing").arg(imagePath));
+                              tr("%1 could not be opened for writing").arg(image_path));
     }
 }
 
@@ -294,15 +303,15 @@ void MainWindow::show_pixmap() {
 
     if (comp_ratio == 1000) {
         ui->lbl_new_size->setText(lbl_new_size_text.arg("black")
-                                  .arg("No").arg("").arg(tr("compression")));
+                            .arg("No").arg("").arg(tr("compression")));
     }
     else if(comp_ratio > 1000) {
         ui->lbl_new_size->setText(lbl_new_size_text.arg("red")
-                                  .arg(weight_loss / 10.0, 0, 'f', 1).arg("%").arg(tr("increase")));
+                            .arg(weight_loss / 10.0, 0, 'f', 1).arg("%").arg(tr("increase")));
     }
     else if(comp_ratio < 1000) {
         ui->lbl_new_size->setText(lbl_new_size_text.arg("green")
-                                  .arg(weight_loss / 10.0, 0, 'f', 1).arg("%").arg(tr("compression")));
+                            .arg(weight_loss / 10.0, 0, 'f', 1).arg("%").arg(tr("compression")));
     }
 
     m_processing = false;
