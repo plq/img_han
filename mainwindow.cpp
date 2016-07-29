@@ -284,26 +284,25 @@ void MainWindow::show_pixmap() {
                 .arg(m_new_h)
                 .arg(m_new_w * m_new_h / 1e6, 0, 'f', 1));
 
-
     /* set compressed image information */
-    int comp_ratio = 100.0 * m_new_size / m_orig_size;
-    int weight_loss = 100 - comp_ratio;
+    int comp_ratio = 1000 * m_new_size / m_orig_size;
+    int weight_loss = 1000 - comp_ratio;
 
     ui->lbl_new_size->setTextFormat(Qt::RichText);
     QString lbl_new_size_text = LBL_NEW_SIZE_TEXT
             .arg(m_new_size / 1024.0, 0, 'f', 1);
 
-    if (comp_ratio == 100) {
+    if (comp_ratio == 1000) {
         ui->lbl_new_size->setText(lbl_new_size_text.arg("black")
                                   .arg("No").arg("").arg(tr("compression")));
     }
-    else if(comp_ratio > 100) {
+    else if(comp_ratio > 1000) {
         ui->lbl_new_size->setText(lbl_new_size_text.arg("red")
-                                  .arg(weight_loss).arg("%").arg(tr("increase")));
+                                  .arg(weight_loss / 10.0, 0, 'f', 1).arg("%").arg(tr("increase")));
     }
-    else if(comp_ratio < 100) {
+    else if(comp_ratio < 1000) {
         ui->lbl_new_size->setText(lbl_new_size_text.arg("green")
-                                  .arg(weight_loss).arg("%").arg(tr("compression")));
+                                  .arg(weight_loss / 10.0, 0, 'f', 1).arg("%").arg(tr("compression")));
     }
 
     m_processing = false;
@@ -327,7 +326,7 @@ void MainWindow::reprocess_image(int scale, int quality) {
             return;
         }
     }
-    m_out_data.clear();
+
     if (m_fast) {
         reprocess_image_fast(scale, quality);
     }
@@ -372,6 +371,8 @@ bool MainWindow::rescale_image(int scale) {
 }
 
 bool MainWindow::requality_image(int quality) {
+    m_out_data.clear();
+
     QBuffer buffer(&m_out_data);
     buffer.open(QIODevice::WriteOnly);
     m_pixmap.save(&buffer, "WEBP", quality);
@@ -442,7 +443,7 @@ void MainWindow::on_btn_rotate_left_clicked(){
 void MainWindow::on_sld_zoom_valueChanged(int value){
     m_sld_zoom_value = value;
 
-    m_ZoomFactor = pow(10,((value-100) / 100.0));
+    m_ZoomFactor = pow(10, ((value - 100) / 100.0));
     qDebug() << "zoom factor = " << m_ZoomFactor << "// zoom slider value = " << value;
 
     QMatrix matrix;
